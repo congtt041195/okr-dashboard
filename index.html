@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Theo Dõi OKR - BI Game Team</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .progress-bar-bg {
+            background-color: #e9ecef;
+        }
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        .objective-title {
+            color: #1e3a8a;
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold objective-title">Dashboard OKR H1-2025</h1>
+            <p class="text-gray-500 mt-2">Team: BI-Game | Cập nhật lần cuối: 17/06/2025</p>
+        </header>
+
+        <!-- Summary Section -->
+        <section id="summary" class="mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card p-6 col-span-1 md:col-span-2">
+                    <h2 class="text-xl font-bold mb-4">Tổng quan tiến độ</h2>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                        <div>
+                            <p class="text-3xl font-bold text-blue-600" id="total-krs">9</p>
+                            <p class="text-sm text-gray-500">Tổng số KR</p>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-bold text-green-600" id="completed-krs">4</p>
+                            <p class="text-sm text-gray-500">Hoàn thành</p>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-bold text-yellow-500" id="inprogress-krs">4</p>
+                            <p class="text-sm text-gray-500">Đang thực hiện</p>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-bold text-red-600" id="atrisk-krs">1</p>
+                            <p class="text-sm text-gray-500">Rủi ro</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6 flex items-center justify-center">
+                     <div class="w-full h-48"><canvas id="krStatusChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Objectives Section -->
+        <main class="space-y-12">
+            <!-- Objective 1 -->
+            <section id="objective-1">
+                <div class="flex items-start md:items-center mb-6">
+                    <span class="text-4xl mr-4">🚀</span>
+                    <h2 class="text-2xl font-bold objective-title">BI-Game trở thành đối tác chiến lược tin cậy, toàn diện ở đa chiều business, thúc đẩy iKame Games phát triển mạnh mẽ, bứt phá</h2>
+                </div>
+                <div id="objective-1-krs" class="space-y-4">
+                    <!-- KRs will be injected here by JS -->
+                </div>
+            </section>
+
+            <!-- Objective 2 -->
+            <section id="objective-2">
+                <div class="flex items-start md:items-center mb-6">
+                    <span class="text-4xl mr-4">🔥</span>
+                    <h2 class="text-2xl font-bold objective-title">Đội ngũ team vững mạnh, nhiệt huyết, sáng tạo, không ngừng nâng tầm</h2>
+                </div>
+                <div id="objective-2-krs" class="space-y-4">
+                     <!-- KRs will be injected here by JS -->
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // --- DATA SOURCE ---
+        // You can easily update the progress here
+        const okrData = {
+            objective1: [
+                { type: 'metric', title: '20 impactful insights / DA ở đa chiều business được đúc kết cho các sản phẩm chiến lược/chủ lực', current: 23, target: 20, unit: 'insights' },
+                { type: 'metric', title: 'Đảm bảo dữ liệu ổn định tin cậy cho các luồng quan trọng (Business, MKT, AB testing, Overview, CDP) đạt Data Uptime là 95%', current: 92, target: 95, unit: '%' },
+                { type: 'task', title: 'Xây dựng, hoàn thiện hệ thống phân tích giúp iKame Games làm chủ bài toán LiveOps - Core Phase', completed: false },
+                { type: 'task', title: 'Ứng dụng hiệu quả CDP, Causal Impact, ROAS Prediction, mang lại hiệu quả kinh doanh', completed: false },
+                { type: 'task', title: 'Đúc rút quy trình đánh giá đo lường Marketing Measurement hiệu quả', completed: true },
+            ],
+            objective2: [
+                { type: 'metric', title: '100% thành viên team được áp dụng hệ thống Level và áp dụng để phát triển bản thân', current: 100, target: 100, unit: '%' },
+                { type: 'metric', title: '100% thành viên team được trang bị đầy đủ IKM và được đánh giá là ứng dụng hiệu quả để nâng cao hiệu quả công việc', current: 100, target: 100, unit: '%' },
+                { type: 'metric', title: '100% thành viên team được trang bị công cụ AI để nâng cao hiệu suất của team', current: 100, target: 100, unit: '%' },
+                { type: 'metric', title: 'Tuyển dụng và onboard thành công 03 Data Analyst trong H1-2025', current: 2, target: 3, unit: 'người' },
+            ]
+        };
+
+        const krContainer1 = document.getElementById('objective-1-krs');
+        const krContainer2 = document.getElementById('objective-2-krs');
+
+        let completedCount = 0;
+        let inProgressCount = 0;
+        let atRiskCount = 0;
+
+        function createKrCard(kr) {
+            let progressHtml = '';
+            let progress = 0;
+            let isCompleted = false;
+            let isAtRisk = false;
+
+            if (kr.type === 'metric') {
+                progress = kr.target > 0 ? (kr.current / kr.target) * 100 : 100;
+                isCompleted = progress >= 100;
+                isAtRisk = progress < 70; // Example threshold for "at risk"
+
+                const displayProgress = Math.min(progress, 100);
+                const color = isCompleted ? 'bg-green-500' : (progress > 70 ? 'bg-blue-500' : 'bg-yellow-500');
+
+                progressHtml = `
+                    <div class="flex justify-between items-center mt-3 mb-1 text-sm">
+                        <span class="font-medium text-gray-600">Tiến độ</span>
+                        <span class="font-bold ${isCompleted ? 'text-green-600' : 'text-blue-600'}">${kr.current} / ${kr.target} ${kr.unit}</span>
+                    </div>
+                    <div class="w-full progress-bar-bg rounded-full h-2.5">
+                        <div class="progress-bar ${color} h-2.5 rounded-full" style="width: ${displayProgress}%"></div>
+                    </div>
+                `;
+            } else if (kr.type === 'task') {
+                isCompleted = kr.completed;
+                const iconClass = isCompleted ? 'fa-solid fa-circle-check text-green-500' : 'fa-regular fa-circle text-gray-400';
+                const textClass = isCompleted ? 'text-green-600' : 'text-yellow-600';
+                const statusText = isCompleted ? 'Hoàn thành' : 'Đang thực hiện';
+
+                progressHtml = `
+                    <div class="mt-4 flex items-center">
+                        <i class="${iconClass} mr-2"></i>
+                        <span class="font-semibold text-sm ${textClass}">${statusText}</span>
+                    </div>
+                `;
+            }
+
+            // Update counters
+            if (isCompleted) {
+                completedCount++;
+            } else if (isAtRisk) {
+                atRiskCount++;
+                inProgressCount++; // At risk is also in progress
+            }
+            else {
+                inProgressCount++;
+            }
+
+            return `
+                <div class="card p-5">
+                    <p class="font-semibold text-gray-700">${kr.title}</p>
+                    ${progressHtml}
+                </div>
+            `;
+        }
+
+        okrData.objective1.forEach(kr => {
+            krContainer1.innerHTML += createKrCard(kr);
+        });
+
+        okrData.objective2.forEach(kr => {
+            krContainer2.innerHTML += createKrCard(kr);
+        });
+
+        // --- Update Summary ---
+        const allKrs = [...okrData.objective1, ...okrData.objective2];
+        document.getElementById('total-krs').textContent = allKrs.length;
+        document.getElementById('completed-krs').textContent = completedCount;
+        document.getElementById('inprogress-krs').textContent = inProgressCount - atRiskCount; // Real in-progress
+        document.getElementById('atrisk-krs').textContent = atRiskCount;
+
+
+        // --- Render Chart ---
+        const ctx = document.getElementById('krStatusChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Hoàn thành', 'Đang thực hiện', 'Rủi ro'],
+                datasets: [{
+                    data: [completedCount, inProgressCount - atRiskCount, atRiskCount],
+                    backgroundColor: [
+                        '#22c55e', // green-500
+                        '#f59e0b', // yellow-500
+                        '#ef4444', // red-500
+                    ],
+                    borderColor: '#f8f9fa',
+                    borderWidth: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 15,
+                            font: {
+                                family: "'Be Vietnam Pro', sans-serif",
+                            }
+                        }
+                    },
+                    tooltip: {
+                         font: {
+                            family: "'Be Vietnam Pro', sans-serif",
+                        },
+                    }
+                }
+            }
+        });
+    });
+    </script>
+</body>
+</html>
