@@ -27,6 +27,9 @@
         .progress-bar-wrapper {
             width: 150px;
         }
+        .kr-container.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="text-gray-900">
@@ -47,28 +50,35 @@
                         <div class="flex items-center space-x-3">
                             <span class="text-2xl">🗂️</span>
                             <div>
-                                <p class="font-bold text-lg" id="total-krs">9</p>
+                                <p class="font-bold text-lg" id="total-krs">0</p>
                                 <p class="text-sm text-gray-500">Tổng số KR</p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-3">
                             <span class="text-2xl">✅</span>
                             <div>
-                                <p class="font-bold text-lg text-green-600" id="completed-krs">4</p>
+                                <p class="font-bold text-lg text-green-600" id="completed-krs">0</p>
                                 <p class="text-sm text-gray-500">Hoàn thành</p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-3">
+                            <span class="text-2xl">👍</span>
+                             <div>
+                                <p class="font-bold text-lg text-blue-600" id="ontrack-krs">0</p>
+                                <p class="text-sm text-gray-500">Tốt</p>
+                            </div>
+                        </div>
+                         <div class="flex items-center space-x-3">
                             <span class="text-2xl">⏳</span>
-                            <div>
-                                <p class="font-bold text-lg text-blue-600" id="inprogress-krs">4</p>
+                             <div>
+                                <p class="font-bold text-lg text-yellow-600" id="inprogress-krs">0</p>
                                 <p class="text-sm text-gray-500">Đang làm</p>
                             </div>
                         </div>
                          <div class="flex items-center space-x-3">
                             <span class="text-2xl">⚠️</span>
                             <div>
-                                <p class="font-bold text-lg text-red-600" id="atrisk-krs">1</p>
+                                <p class="font-bold text-lg text-red-600" id="atrisk-krs">0</p>
                                 <p class="text-sm text-gray-500">Rủi ro</p>
                             </div>
                         </div>
@@ -79,30 +89,8 @@
         </section>
 
         <!-- Objectives Section -->
-        <main class="space-y-8">
-            <!-- Objective 1 -->
-            <section id="objective-1">
-                <div class="objective-toggle flex items-center cursor-pointer py-2 group">
-                    <svg class="toggle-icon open w-5 h-5 mr-1 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    <span class="text-2xl mr-3">🚀</span>
-                    <h2 class="text-xl font-bold text-gray-800">BI-Game trở thành đối tác chiến lược...</h2>
-                </div>
-                <div class="kr-container pl-8 border-l-2 border-gray-200">
-                    <!-- KRs will be injected here by JS -->
-                </div>
-            </section>
-
-            <!-- Objective 2 -->
-            <section id="objective-2">
-                 <div class="objective-toggle flex items-center cursor-pointer py-2 group">
-                    <svg class="toggle-icon open w-5 h-5 mr-1 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    <span class="text-2xl mr-3">🔥</span>
-                    <h2 class="text-xl font-bold text-gray-800">Đội ngũ team vững mạnh, nhiệt huyết...</h2>
-                </div>
-                 <div class="kr-container pl-8 border-l-2 border-gray-200">
-                     <!-- KRs will be injected here by JS -->
-                </div>
-            </section>
+        <main id="objectives-container" class="space-y-8">
+            <!-- Objectives will be injected here by JS -->
         </main>
     </div>
 
@@ -110,75 +98,90 @@
     document.addEventListener('DOMContentLoaded', function() {
 
         // --- DATA SOURCE ---
+        // Data parsed from "H1- 2025 OKR Planning & Execution - 1. OKRs.csv"
+        // Progress is now a direct percentage value.
         const okrData = {
-            objective1: [
-                { type: 'metric', title: '100 impactful insights được đúc kết cho các sản phẩm chiến lược/chủ lực (Toàn team)', current: 23, target: 100, unit: 'insights' },
-                { type: 'metric', title: 'Đảm bảo dữ liệu ổn định tin cậy cho các luồng quan trọng (Business, MKT, AB testing, Overview, CDP) đạt Data Uptime là 95%', current: 92, target: 95, unit: '%' },
-                { type: 'task', title: 'Xây dựng, hoàn thiện hệ thống phân tích giúp iKame Games làm chủ bài toán LiveOps - Core Phase', completed: false },
-                { type: 'task', title: 'Ứng dụng hiệu quả CDP, Causal Impact, ROAS Prediction, mang lại hiệu quả kinh doanh', completed: false },
-                { type: 'task', title: 'Đúc rút quy trình đánh giá đo lường Marketing Measurement hiệu quả', completed: true },
+            "🚀 BI-Game trở thành đối tác chiến lược tin cậy, toàn diện ở đa chiều business, thúc đẩy iKame Games phát triển mạnh mẽ, bứt phá": [
+                { title: '100 impactful insights / DA ở đa chiều business được đúc kết cho các sản phẩm chiến lược/chủ lực', progress: 0.24 },
+                { title: 'Đảm bảo dữ liệu ổn định tin cậy cho các luồng quan trọng (Business, MKT, AB testing, Overview, CDP) đạt Data Uptime là 95%', progress: 0.50 },
+                { title: 'Xây dựng, hoàn thiện hệ thống phân tích giúp iKame Games làm chủ bài toán LiveOps - Core Phase', progress: 0.75 },
+                { title: 'Ứng dụng hiệu quả CDP, Causal Impact, ROAS Prediction, mang lại hiệu quả kinh doanh', progress: 0.70 },
+                { title: 'Đúc rút quy trình đánh giá đo lường Marketing Measurement hiệu quả', progress: 0.50 },
             ],
-            objective2: [
-                { type: 'metric', title: '100% thành viên team được áp dụng hệ thống Level và áp dụng để phát triển bản thân', current: 100, target: 100, unit: '%' },
-                { type: 'metric', title: '100% thành viên team được trang bị đầy đủ IKM và được đánh giá là ứng dụng hiệu quả', current: 100, target: 100, unit: '%' },
-                { type: 'metric', title: '100% thành viên team được trang bị công cụ AI để nâng cao hiệu suất', current: 100, target: 100, unit: '%' },
-                { type: 'metric', title: 'Tuyển dụng và onboard thành công 03 Data Analyst trong H1-2025', current: 2, target: 3, unit: 'người' },
+            "🔥 Đội ngũ team vững mạnh, nhiệt huyết, sáng tạo, không ngừng nâng tầm": [
+                { title: '100% thành viên team được áp dụng hệ thống Level và áp dụng để phát triển bản thân', progress: 0.00 },
+                { title: '100% thành viên team được trang bị đầy đủ IKM và được đánh giá là ứng dụng hiệu quả để nâng cao hiệu quả công việc', progress: 0.10 },
+                { title: '100% thành viên team được trang bị công cụ AI để nâng cao hiệu suất của team', progress: 0.20 },
+                { title: 'Tuyển dụng và onboard thành công 03 Data Analyst trong H1-2025', progress: 0.30 },
             ]
         };
 
-        const krContainer1 = document.querySelector('#objective-1 .kr-container');
-        const krContainer2 = document.querySelector('#objective-2 .kr-container');
-        
-        let summary = { completed: 0, inProgress: 0, atRisk: 0 };
+        const objectivesContainer = document.getElementById('objectives-container');
+        let summary = { completed: 0, onTrack: 0, inProgress: 0, atRisk: 0, total: 0 };
 
         function createKrRow(kr) {
-            let progressHtml = '';
-            let progress = 0;
-            let status = 'inProgress';
+            const progressPercent = kr.progress * 100;
 
-            if (kr.type === 'metric') {
-                progress = kr.target > 0 ? (kr.current / kr.target) * 100 : 100;
-                if (progress >= 100) status = 'completed';
-                else if (progress < 50) status = 'atRisk'; // Example risk threshold
-                
-                const displayProgress = Math.min(progress, 100);
-                const color = status === 'completed' ? 'bg-green-500' : status === 'atRisk' ? 'bg-red-500' : 'bg-blue-500';
+            // Determine status and color based on the numeric progress value
+            let colorClass = 'bg-red-500'; // At risk
+            let statusKey = 'atRisk';
 
-                progressHtml = `
-                    <div class="flex items-center space-x-3">
-                        <span class="text-sm font-medium text-gray-500 w-24 text-right">${kr.current} / ${kr.target} ${kr.unit}</span>
-                        <div class="progress-bar-wrapper bg-gray-200 rounded-full h-2">
-                            <div class="${color} h-2 rounded-full" style="width: ${displayProgress}%"></div>
-                        </div>
-                    </div>
-                `;
-            } else if (kr.type === 'task') {
-                status = kr.completed ? 'completed' : 'inProgress';
-                const iconClass = kr.completed ? 'text-green-500' : 'text-gray-400';
-                const icon = kr.completed ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle';
-
-                progressHtml = `<div class="w-44 text-right"><i class="${icon} ${iconClass}"></i></div>`;
+            if (progressPercent >= 100) {
+                colorClass = 'bg-green-500';
+                statusKey = 'completed';
+            } else if (progressPercent >= 70) {
+                colorClass = 'bg-blue-500';
+                statusKey = 'onTrack';
+            } else if (progressPercent >= 40) {
+                colorClass = 'bg-yellow-500';
+                statusKey = 'inProgress';
             }
 
+            // Generate the progress bar HTML
+            const progressHtml = `
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm font-medium text-gray-500 w-12 text-right">${progressPercent.toFixed(0)}%</span>
+                    <div class="progress-bar-wrapper bg-gray-200 rounded-full h-2">
+                        <div class="${colorClass} h-2 rounded-full" style="width: ${progressPercent}%"></div>
+                    </div>
+                </div>
+            `;
+
             // Update summary
-            summary[status]++;
+            summary[statusKey]++;
+            summary.total++;
 
             const row = document.createElement('div');
             row.className = 'flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0';
-            row.innerHTML = `
-                <p class="flex-1 pr-4">${kr.title}</p>
-                ${progressHtml}
-            `;
+            row.innerHTML = `<p class="flex-1 pr-4">${kr.title}</p>${progressHtml}`;
             return row;
         }
 
-        okrData.objective1.forEach(kr => krContainer1.appendChild(createKrRow(kr)));
-        okrData.objective2.forEach(kr => krContainer2.appendChild(createKrRow(kr)));
-        
+        // Render all objectives and their KRs
+        Object.keys(okrData).forEach((objectiveTitle) => {
+            const objectiveSection = document.createElement('section');
+            const krs = okrData[objectiveTitle];
+
+            const icon = objectiveTitle.substring(0, objectiveTitle.indexOf(' '));
+            const title = objectiveTitle.substring(objectiveTitle.indexOf(' ') + 1);
+
+            objectiveSection.innerHTML = `
+                <div class="objective-toggle flex items-center cursor-pointer py-2 group">
+                    <svg class="toggle-icon open w-5 h-5 mr-1 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    <span class="text-2xl mr-3">${icon}</span>
+                    <h2 class="text-xl font-bold text-gray-800">${title}</h2>
+                </div>
+                <div class="kr-container pl-8 border-l-2 border-gray-200"></div>`;
+
+            const krContainer = objectiveSection.querySelector('.kr-container');
+            krs.forEach(kr => krContainer.appendChild(createKrRow(kr)));
+            objectivesContainer.appendChild(objectiveSection);
+        });
+
         // --- Update Summary Display ---
-        const allKrs = [...okrData.objective1, ...okrData.objective2];
-        document.getElementById('total-krs').textContent = allKrs.length;
+        document.getElementById('total-krs').textContent = summary.total;
         document.getElementById('completed-krs').textContent = summary.completed;
+        document.getElementById('ontrack-krs').textContent = summary.onTrack;
         document.getElementById('inprogress-krs').textContent = summary.inProgress;
         document.getElementById('atrisk-krs').textContent = summary.atRisk;
 
@@ -197,10 +200,10 @@
         new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Hoàn thành', 'Đang làm', 'Rủi ro'],
+                labels: ['Hoàn thành', 'Tốt', 'Đang làm', 'Rủi ro'],
                 datasets: [{
-                    data: [summary.completed, summary.inProgress, summary.atRisk],
-                    backgroundColor: ['#16a34a', '#2563eb', '#dc2626'],
+                    data: [summary.completed, summary.onTrack, summary.inProgress, summary.atRisk],
+                    backgroundColor: ['#16a34a', '#2563eb', '#f59e0b', '#dc2626'],
                     borderColor: '#FFFFFF',
                     borderWidth: 4,
                 }]
@@ -211,9 +214,7 @@
                 cutout: '70%',
                 plugins: {
                     legend: { display: false },
-                    tooltip: {
-                         font: { family: "'Inter', sans-serif" },
-                    }
+                    tooltip: { font: { family: "'Inter', sans-serif" } }
                 }
             }
         });
